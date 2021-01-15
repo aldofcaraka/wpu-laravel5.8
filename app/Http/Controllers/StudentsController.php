@@ -93,7 +93,7 @@ class StudentsController extends Controller
      */
     public function edit(Student $student)
     {
-        //
+        return view('students.edit', compact('student'));
     }
 
     /**
@@ -105,7 +105,33 @@ class StudentsController extends Controller
      */
     public function update(Request $request, Student $student)
     {
-        //
+        $request->validate(
+            [
+                'nama' => 'required',
+                'nrp' => 'required|size:9|digits_between:9,9',
+                'email' => 'required|email|unique:students,email',
+                'jurusan' => 'required'
+            ],
+            [
+                'nama.required' => 'Nama masih kosong, silahkan di isi',
+                'nrp.required' => 'NRP masih kosong, silahkan di isi',
+                'nrp.size' => 'NRP tidak 9 digit',
+                'nrp.digits_between' => 'NRP hanya boleh angka',
+                'email.required' => 'E-mail masih kosong, silahkan di isi',
+                'email.email' => 'Format E-mail salah',
+                'email.unique' => 'E-mail sudah terdaftar',
+                'jurusan.required' => 'Jurusan masih kosong, silahkan di isi'
+            ]
+        );
+
+        Student::where('id', $student->id)->update([
+            'nama' => $request->nama,
+            'nrp' => $request->nrp,
+            'email' => $request->email,
+            'jurusan' => $request->jurusan
+        ]);
+
+        return redirect('/students')->with('status', 'Data Mahasiswa Berhasil Diubah !');
     }
 
     /**
@@ -116,6 +142,7 @@ class StudentsController extends Controller
      */
     public function destroy(Student $student)
     {
-        //
+        Student::destroy($student->id);
+        return redirect('/students')->with('status', 'Data Mahasiswa Berhasil Dihapus !');
     }
 }
